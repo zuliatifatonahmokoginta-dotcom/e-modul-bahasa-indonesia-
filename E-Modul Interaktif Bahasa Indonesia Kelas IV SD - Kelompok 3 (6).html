@@ -1,0 +1,1107 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>E-Modul Interaktif Bahasa Indonesia Kelas IV SD - Kelompok 3</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Nunito & Quicksand (Ramah Anak SD) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@500;600;700;800;900&family=Quicksand:wght@600;700&display=swap" rel="stylesheet">
+    <!-- Tone.js untuk efek suara interaksi ramah anak -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.js"></script>
+
+    <style>
+        /* Pengaturan Dasar Tipografi & Latar */
+        body {
+            font-family: 'Nunito', sans-serif;
+            background: linear-gradient(135deg, #e0f2fe 0%, #f0fdf4 50%, #fefce8 100%);
+            min-height: 100vh;
+            overflow-x: hidden;
+            user-select: none;
+        }
+        h1, h2, h3, .font-title {
+            font-family: 'Quicksand', sans-serif;
+        }
+
+        /* Animasi Latar Belakang Dekoratif */
+        @keyframes floatSlow {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-12px) rotate(3deg); }
+        }
+        @keyframes driftCloud {
+            0% { transform: translateX(-20px); }
+            50% { transform: translateX(25px); }
+            100% { transform: translateX(-20px); }
+        }
+        @keyframes flutter {
+            0%, 100% { transform: translate(0, 0) scaleX(1); }
+            25% { transform: translate(6px, -8px) scaleX(0.75); }
+            50% { transform: translate(12px, -2px) scaleX(1); }
+            75% { transform: translate(6px, -10px) scaleX(0.75); }
+        }
+        @keyframes pulseGlow {
+            0%, 100% { transform: scale(1); box-shadow: 0 8px 20px rgba(245, 158, 11, 0.35); }
+            50% { transform: scale(1.04); box-shadow: 0 12px 28px rgba(245, 158, 11, 0.55); }
+        }
+
+        .anim-float { animation: floatSlow 4s ease-in-out infinite; }
+        .anim-cloud { animation: driftCloud 9s ease-in-out infinite; }
+        .anim-butterfly { animation: flutter 3.2s ease-in-out infinite; }
+        .anim-cta { animation: pulseGlow 2.4s infinite; }
+
+        /* Transisi Antar Halaman/Slide E-Modul */
+        .slide-page {
+            display: none;
+            opacity: 0;
+            transform: translateY(18px) scale(0.98);
+            transition: opacity 0.45s cubic-bezier(0.22, 1, 0.36, 1), transform 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+        }
+        .slide-page.active {
+            display: block;
+            opacity: 1;
+            transform: translateY(0) scale(1);
+        }
+
+        /* Kartu Flip 3D untuk Kamus Mini */
+        .flip-card {
+            perspective: 1000px;
+            height: 210px;
+            cursor: pointer;
+        }
+        .flip-card-inner {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            text-align: center;
+            transition: transform 0.65s cubic-bezier(0.4, 0.2, 0.2, 1);
+            transform-style: preserve-3d;
+        }
+        .flip-card.flipped .flip-card-inner {
+            transform: rotateY(180deg);
+        }
+        .flip-card-front, .flip-card-back {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            -webkit-backface-visibility: hidden;
+            backface-visibility: hidden;
+            border-radius: 1.25rem;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 1.25rem;
+        }
+        .flip-card-back {
+            transform: rotateY(180deg);
+        }
+
+        /* Sorotan Kata Sulit pada Cerita */
+        .vocab-highlight {
+            background-color: #fef08a;
+            color: #065f46;
+            font-weight: 800;
+            padding: 1px 6px;
+            border-radius: 8px;
+            border-bottom: 2px dashed #10b981;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: inline-block;
+        }
+        .vocab-highlight:hover {
+            background-color: #fde047;
+            transform: translateY(-2px) scale(1.05);
+            box-shadow: 0 4px 10px rgba(16, 185, 129, 0.25);
+        }
+
+        /* Tombol 3D Ramah Anak */
+        .btn-kid {
+            transition: all 0.18s ease;
+            box-shadow: 0 4px 0 rgba(0, 0, 0, 0.16);
+        }
+        .btn-kid:active:not(:disabled) {
+            transform: translateY(3px);
+            box-shadow: 0 1px 0 rgba(0, 0, 0, 0.16);
+        }
+        .btn-kid:disabled {
+            opacity: 0.45;
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+
+        /* Custom Scrollbar untuk area cerita */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #f1f5f9; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb { background: #34d399; border-radius: 10px; }
+    </style>
+</head>
+<body class="text-slate-800 flex flex-col justify-between relative">
+
+    <!-- Elemen Dekoratif Latar Belakang (Awan & Daun Melayang) -->
+    <div class="fixed inset-0 pointer-events-none overflow-hidden z-0">
+        <!-- Awan Kiri Atas -->
+        <svg class="anim-cloud absolute top-16 left-6 w-28 h-16 text-white/80" viewBox="0 0 120 60" fill="currentColor">
+            <path d="M25,50 H95 A20,20 0 0,0 95,10 A25,25 0 0,0 50,8 A20,20 0 0,0 25,50 Z"/>
+        </svg>
+        <!-- Awan Kanan Atas -->
+        <svg class="anim-cloud absolute top-24 right-10 w-36 h-20 text-white/75" style="animation-delay: 2s;" viewBox="0 0 120 60" fill="currentColor">
+            <path d="M25,50 H95 A20,20 0 0,0 95,10 A25,25 0 0,0 50,8 A20,20 0 0,0 25,50 Z"/>
+        </svg>
+        <!-- Daun Melayang -->
+        <svg class="anim-float absolute bottom-24 left-8 w-12 h-12 text-emerald-400/40" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M17,8C8,10 5.9,16.17 3.82,21.34L5.71,22L6.66,19.7C7.14,19.87 7.64,20 8,20C19,20 22,3 22,3C21,5 14,5.25 9,6.25C4,7.25 2,11.5 2,13.5C2,15.5 3.75,17.25 3.75,17.25C7,8 17,8 17,8Z"/>
+        </svg>
+    </div>
+
+    <!-- HEADER NAVIGASI ATAS (Selalu Terlihat) -->
+    <header class="sticky top-0 z-30 bg-white/90 backdrop-blur-md border-b-2 border-emerald-200 shadow-sm">
+        <div class="max-w-5xl mx-auto px-4 py-3 flex items-center justify-between gap-3">
+            <!-- Identitas Modul -->
+            <div class="flex items-center gap-2.5">
+                <div class="w-10 h-10 rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-600 text-white flex items-center justify-center shadow-md font-extrabold text-lg">
+                    📖
+                </div>
+                <div>
+                    <div class="text-xs font-extrabold uppercase tracking-wider text-emerald-600">Bahasa Indonesia • Kelas IV SD</div>
+                    <div class="text-sm sm:text-base font-bold text-slate-800 leading-tight">E-Modul Teks Narasi (Kelompok 3)</div>
+                </div>
+            </div>
+
+            <!-- Indikator Progres & Tombol Daftar Isi -->
+            <div class="flex items-center gap-3">
+                <div class="hidden sm:flex flex-col items-end">
+                    <span id="pageIndicatorText" class="text-xs font-bold text-slate-600">Halaman 1 dari 7</span>
+                    <div class="w-32 h-2.5 bg-slate-200 rounded-full overflow-hidden mt-1">
+                        <div id="progressBarFill" class="h-full bg-gradient-to-r from-emerald-400 to-amber-400 rounded-full transition-all duration-500" style="width: 14.28%;"></div>
+                    </div>
+                </div>
+
+                <!-- Tombol Toggle Suara -->
+                <button id="soundToggleBtn" onclick="toggleSound()" title="Nyalakan/Matikan Efek Suara" class="p-2.5 rounded-xl bg-sky-100 hover:bg-sky-200 text-sky-700 font-bold text-sm transition">
+                    🔊
+                </button>
+
+                <!-- Tombol Menu Daftar Isi -->
+                <button onclick="toggleTocModal()" class="btn-kid flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-amber-400 hover:bg-amber-500 text-amber-950 font-extrabold text-xs sm:text-sm">
+                    <span>📑</span>
+                    <span>Daftar Isi</span>
+                </button>
+            </div>
+        </div>
+        <!-- Progress Bar Mobile -->
+        <div class="sm:hidden w-full h-1.5 bg-slate-200">
+            <div id="progressBarMobile" class="h-full bg-emerald-500 transition-all duration-500" style="width: 14.28%;"></div>
+        </div>
+    </header>
+
+    <!-- AREA UTAMA KONTEN E-MODUL (7 HALAMAN SLIDE) -->
+    <main class="relative z-10 flex-1 max-w-5xl w-full mx-auto px-4 py-6 sm:py-8 flex items-center">
+
+        <!-- ========================================================= -->
+        <!-- HALAMAN 1: SAMPUL (COVER)                                 -->
+        <!-- ========================================================= -->
+        <section id="slide-0" class="slide-page active w-full">
+            <div class="bg-white/95 rounded-3xl border-4 border-emerald-300 shadow-xl p-6 sm:p-10 text-center relative overflow-hidden">
+                <!-- Pita Identitas TPACK -->
+                <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-sky-100 text-sky-800 font-extrabold text-xs sm:text-sm mb-4">
+                    <span>✨ Media Pembelajaran Berbasis TPACK • PGSD UNIMA</span>
+                </div>
+
+                <!-- Ilustrasi SVG Animasi Sampul -->
+                <div class="max-w-xs mx-auto my-2 anim-float">
+                    <svg viewBox="0 0 320 180" class="w-full h-auto drop-shadow-md">
+                        <!-- Latar Lingkaran Matahari -->
+                        <circle cx="160" cy="95" r="72" fill="#fef08a" />
+                        <!-- Bukit Hijau -->
+                        <path d="M55,145 Q160,95 265,145 Z" fill="#34d399" />
+                        <!-- Buku Terbuka -->
+                        <path d="M85,130 Q122,115 160,130 L160,162 Q122,147 85,162 Z" fill="#ffffff" stroke="#059669" stroke-width="3"/>
+                        <path d="M235,130 Q198,115 160,130 L160,162 Q198,147 235,162 Z" fill="#f8fafc" stroke="#059669" stroke-width="3"/>
+                        <!-- Tanaman Tumbuh dari Buku -->
+                        <path d="M160,130 Q160,90 160,72" stroke="#15803d" stroke-width="4" stroke-linecap="round"/>
+                        <path d="M160,102 Q135,88 132,106 Q148,114 160,102 Z" fill="#22c55e"/>
+                        <path d="M160,90 Q186,74 190,94 Q172,102 160,90 Z" fill="#16a34a"/>
+                        <!-- Kupu-kupu Animasi -->
+                        <g class="anim-butterfly">
+                            <ellipse cx="215" cy="65" rx="9" ry="6" fill="#f59e0b" transform="rotate(-25 215 65)"/>
+                            <ellipse cx="226" cy="68" rx="8" ry="5" fill="#fbbf24" transform="rotate(20 226 68)"/>
+                        </g>
+                        <!-- Bintang-bintang Kecil -->
+                        <circle cx="105" cy="65" r="4" fill="#f59e0b"/>
+                        <circle cx="220" cy="105" r="3.5" fill="#38bdf8"/>
+                    </svg>
+                </div>
+
+                <h1 class="text-2xl sm:text-4xl font-extrabold text-emerald-900 tracking-tight mb-2">
+                    Petualangan Membaca Cerita Pendek &amp; Kosakata Baru
+                </h1>
+                <p class="text-base sm:text-lg text-slate-600 font-semibold max-w-2xl mx-auto mb-6">
+                    E-Modul Interaktif Bahasa Indonesia Kelas IV Sekolah Dasar (Fase B) — Materi Teks Narasi Fiksi Anak
+                </p>
+
+                <!-- Kartu Identitas Kelompok 3 -->
+                <div class="bg-emerald-50/90 border-2 border-emerald-200 rounded-2xl p-4 max-w-xl mx-auto mb-7 text-sm text-emerald-950">
+                    <div class="font-extrabold text-emerald-800 mb-1">Disusun oleh: KELOMPOK 3 (Mata Kuliah Strategi Pembelajaran)</div>
+                    <p class="text-xs sm:text-sm text-slate-700">Program Studi Pendidikan Guru Sekolah Dasar (PGSD) • Universitas Negeri Manado</p>
+                </div>
+
+                <!-- Tombol Mulai Belajar Beranimasi -->
+                <button onclick="goToSlide(1)" class="btn-kid anim-cta inline-flex items-center gap-3 px-8 py-4 rounded-2xl bg-gradient-to-r from-amber-400 to-orange-400 hover:from-amber-500 hover:to-orange-500 text-amber-950 font-black text-lg sm:text-xl cursor-pointer">
+                    <span>🚀 Mulai Belajar Sekarang!</span>
+                </button>
+            </div>
+        </section>
+
+        <!-- ========================================================= -->
+        <!-- HALAMAN 2: PETUNJUK BELAJAR & TUJUAN PEMBELAJARAN         -->
+        <!-- ========================================================= -->
+        <section id="slide-1" class="slide-page w-full">
+            <div class="bg-white/95 rounded-3xl border-4 border-sky-300 shadow-xl p-6 sm:p-8">
+                <div class="flex items-center gap-3 mb-5">
+                    <span class="px-3.5 py-1 rounded-full bg-sky-100 text-sky-800 font-extrabold text-xs">Halaman 2</span>
+                    <h2 class="text-2xl sm:text-3xl font-extrabold text-sky-900">Petunjuk Belajar &amp; Tujuan Kita</h2>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- Kolom Kiri: Petunjuk Ikon Navigasi -->
+                    <div class="bg-sky-50/80 border-2 border-sky-200 rounded-2xl p-5">
+                        <h3 class="text-lg font-extrabold text-sky-900 mb-3 flex items-center gap-2">
+                            <span>🧭</span> Cara Menggunakan E-Modul
+                        </h3>
+                        <ul class="space-y-3 text-sm sm:text-base text-slate-700">
+                            <li class="flex items-start gap-3 bg-white p-3 rounded-xl shadow-sm">
+                                <span class="px-2.5 py-1 rounded-lg bg-emerald-500 text-white font-bold text-xs shrink-0">Selanjutnya ➡️</span>
+                                <span>Klik tombol ini di bawah layar untuk berpindah ke halaman berikutnya.</span>
+                            </li>
+                            <li class="flex items-start gap-3 bg-white p-3 rounded-xl shadow-sm">
+                                <span class="px-2.5 py-1 rounded-lg bg-slate-200 text-slate-800 font-bold text-xs shrink-0">⬅️ Sebelumnya</span>
+                                <span>Klik tombol ini jika kamu ingin mengulang halaman sebelumnya.</span>
+                            </li>
+                            <li class="flex items-start gap-3 bg-white p-3 rounded-xl shadow-sm">
+                                <span class="px-2.5 py-1 rounded-lg bg-amber-300 text-amber-950 font-bold text-xs shrink-0">Kata Kuning</span>
+                                <span>Klik kata yang disorot kuning pada cerita untuk melihat artinya!</span>
+                            </li>
+                            <li class="flex items-start gap-3 bg-white p-3 rounded-xl shadow-sm">
+                                <span class="px-2.5 py-1 rounded-lg bg-purple-100 text-purple-800 font-bold text-xs shrink-0">🔄 Kartu Flip</span>
+                                <span>Klik kartu di Kamus Mini untuk membalik dan melihat contoh kalimatnya.</span>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <!-- Kolom Kanan: Tujuan Pembelajaran Interaktif (Bisa dicentang siswa) -->
+                    <div class="bg-amber-50/80 border-2 border-amber-200 rounded-2xl p-5 flex flex-col justify-between">
+                        <div>
+                            <h3 class="text-lg font-extrabold text-amber-900 mb-1 flex items-center gap-2">
+                                <span>🎯</span> Target Belajar Hari Ini
+                            </h3>
+                            <p class="text-xs sm:text-sm text-amber-800 mb-4">Klik setiap kotak tujuan di bawah ini untuk menandai kesiapan belajarmu!</p>
+
+                            <div class="space-y-3" id="goalList">
+                                <button onclick="toggleGoal(this)" class="w-full text-left p-3.5 rounded-2xl bg-white border-2 border-amber-300 hover:border-emerald-400 transition flex items-center gap-3 shadow-sm cursor-pointer">
+                                    <span class="goal-check w-7 h-7 rounded-full border-2 border-amber-400 flex items-center justify-center font-bold text-white shrink-0 transition">✓</span>
+                                    <span class="text-sm sm:text-base font-bold text-slate-700">1. Memahami urutan peristiwa dalam cerita pendek anak.</span>
+                                </button>
+
+                                <button onclick="toggleGoal(this)" class="w-full text-left p-3.5 rounded-2xl bg-white border-2 border-amber-300 hover:border-emerald-400 transition flex items-center gap-3 shadow-sm cursor-pointer">
+                                    <span class="goal-check w-7 h-7 rounded-full border-2 border-amber-400 flex items-center justify-center font-bold text-white shrink-0 transition">✓</span>
+                                    <span class="text-sm sm:text-base font-bold text-slate-700">2. Menemukan tokoh, sifat, tempat kejadian, dan pesan baik cerita.</span>
+                                </button>
+
+                                <button onclick="toggleGoal(this)" class="w-full text-left p-3.5 rounded-2xl bg-white border-2 border-amber-300 hover:border-emerald-400 transition flex items-center gap-3 shadow-sm cursor-pointer">
+                                    <span class="goal-check w-7 h-7 rounded-full border-2 border-amber-400 flex items-center justify-center font-bold text-white shrink-0 transition">✓</span>
+                                    <span class="text-sm sm:text-base font-bold text-slate-700">3. Mengenal 5 kosakata baru dan menggunakannya dalam kalimat.</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div id="goalFeedback" class="mt-4 p-3 rounded-xl bg-emerald-100 text-emerald-800 text-xs sm:text-sm font-bold text-center hidden">
+                            🌟 Hebat! Kamu sudah siap berpetualang membaca!
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ========================================================= -->
+        <!-- HALAMAN 3: CERITA PENDEK INTERAKTIF & ILUSTRASI ANIMASI   -->
+        <!-- ========================================================= -->
+        <section id="slide-2" class="slide-page w-full">
+            <div class="bg-white/95 rounded-3xl border-4 border-amber-300 shadow-xl p-6 sm:p-8">
+                <div class="flex flex-wrap items-center justify-between gap-2 mb-4">
+                    <div class="flex items-center gap-2.5">
+                        <span class="px-3.5 py-1 rounded-full bg-amber-100 text-amber-800 font-extrabold text-xs">Halaman 3</span>
+                        <h2 class="text-xl sm:text-3xl font-extrabold text-amber-900">Ayo Membaca Cerita Pendek!</h2>
+                    </div>
+                    <span class="text-xs font-bold bg-emerald-100 text-emerald-800 px-3 py-1 rounded-full">
+                        💡 Klik kata berwarna kuning untuk arti kata!
+                    </span>
+                </div>
+
+                <!-- Ilustrasi Animasi Kebun Sekolah -->
+                <div class="bg-gradient-to-b from-sky-200 via-sky-100 to-emerald-100 rounded-2xl p-4 mb-5 border-2 border-sky-200 relative overflow-hidden">
+                    <svg viewBox="0 0 600 135" class="w-full h-28 sm:h-32">
+                        <!-- Matahari Bersinar -->
+                        <circle cx="530" cy="35" r="22" fill="#facc15" class="anim-float"/>
+                        <!-- Pohon Ketapang Rindang di Kanan -->
+                        <rect x="445" y="65" width="14" height="55" fill="#78350f"/>
+                        <circle cx="452" cy="52" r="34" fill="#16a34a"/>
+                        <circle cx="428" cy="60" r="24" fill="#22c55e"/>
+                        <circle cx="476" cy="60" r="24" fill="#15803d"/>
+                        <!-- Tanah Kebun -->
+                        <rect x="0" y="115" width="600" height="20" fill="#4ade80"/>
+                        <!-- Pot-pot Tanaman Sawi -->
+                        <g transform="translate(80, 92)">
+                            <polygon points="0,10 26,10 22,25 4,25" fill="#ea580c"/>
+                            <path d="M13,10 Q4,0 2,8 Q10,12 13,10 Z" fill="#16a34a"/>
+                            <path d="M13,10 Q22,0 24,8 Q16,12 13,10 Z" fill="#22c55e"/>
+                        </g>
+                        <g transform="translate(135, 92)">
+                            <polygon points="0,10 26,10 22,25 4,25" fill="#ea580c"/>
+                            <path d="M13,10 Q4,0 2,8 Q10,12 13,10 Z" fill="#16a34a"/>
+                            <path d="M13,10 Q22,0 24,8 Q16,12 13,10 Z" fill="#22c55e"/>
+                        </g>
+                        <g transform="translate(190, 92)">
+                            <polygon points="0,10 26,10 22,25 4,25" fill="#ea580c"/>
+                            <path d="M13,10 Q4,0 2,8 Q10,12 13,10 Z" fill="#16a34a"/>
+                            <path d="M13,10 Q22,0 24,8 Q16,12 13,10 Z" fill="#22c55e"/>
+                        </g>
+                        <!-- Kupu-kupu Terbang di Atas Tanaman -->
+                        <g class="anim-butterfly" transform="translate(260, 45)">
+                            <ellipse cx="0" cy="0" rx="10" ry="6" fill="#f43f5e" transform="rotate(-20)"/>
+                            <ellipse cx="12" cy="2" rx="9" ry="5" fill="#fb7185" transform="rotate(20)"/>
+                        </g>
+                        <!-- Label Suasana -->
+                        <text x="20" y="30" fill="#0369a1" font-family="Nunito" font-weight="800" font-size="14">Kebun Belakang Kelas IV — SD Tunas Harapan</text>
+                    </svg>
+                </div>
+
+                <!-- Box Teks Cerita Pendek -->
+                <div class="bg-amber-50/70 border-2 border-amber-200 rounded-2xl p-5 sm:p-6 space-y-3.5 text-base sm:text-lg leading-relaxed text-slate-800 max-h-80 overflow-y-auto">
+                    <h3 class="text-center text-xl sm:text-2xl font-black text-amber-900 mb-2">🌱 Rahasia Kebun Sekolah 🌱</h3>
+
+                    <p class="indent-6">
+                        Pagi itu, halaman SD Tunas Harapan tampak sangat sejuk. Raka, Sari, dan Bima bergegas menuju kebun kecil di belakang ruang kelas IV. Mereka mendapat tugas piket menyiram tanaman sayur yang ditanam minggu lalu. Namun, setibanya di sana, Sari terkejut melihat daun-daun sawi tampak layu dan tanah di dalam pot terlihat kering kerontang.
+                    </p>
+                    <p class="indent-6">
+                        "Mengapa tanaman kita layu, ya? Padahal kemarin sore sudah kita siram," tanya Bima dengan wajah
+                        <span class="vocab-highlight" onclick="showWordPopup('Murung', 'Sedih, tampak tidak gembira, atau bermuka masam.', 'Wajah Dino tampak murung karena pensil kesayangannya hilang.')">murung</span>.
+                        Raka berjongkok dan mengamati permukaan tanah dengan
+                        <span class="vocab-highlight" onclick="showWordPopup('Saksama', 'Teliti, cermat, dan penuh perhatian.', 'Siswa kelas IV mendengarkan penjelasan guru dengan saksama.')">saksama</span>.
+                        Ia menemukan bahwa pot-pot tanaman tersebut diletakkan tepat di bawah atap seng yang memantulkan panas matahari secara berlebihan.
+                    </p>
+                    <p class="indent-6">
+                        Sari segera mengusulkan ide. "Bagaimana jika kita memindahkan pot-pot ini ke bawah pohon ketapang yang
+                        <span class="vocab-highlight" onclick="showWordPopup('Rindang', 'Banyak cabang, ranting, dan daun sehingga terasa teduh.', 'Kami berteduh di bawah pohon mangga yang rindang saat istirahat.')">rindang</span>?
+                        Di sana sinar matahari tetap masuk, tetapi tidak terlalu terik." Raka dan Bima setuju. Mereka bekerja sama memindahkan satu per satu pot dengan hati-hati agar akarnya tidak rusak, lalu menyiramnya dengan air secukupnya.
+                    </p>
+                    <p class="indent-6">
+                        Tiga hari kemudian, tanaman sawi itu kembali segar dan tumbuh
+                        <span class="vocab-highlight" onclick="showWordPopup('Subur', 'Tumbuh dengan baik dan sehat (tidak layu atau merana).', 'Tanaman bunga di halaman rumah tumbuh subur karena rajin disiram.')">subur</span>.
+                        Ibu Guru memuji kepedulian dan kerja sama mereka. Raka, Sari, dan Bima merasa bangga karena berhasil memecahkan masalah kebun sekolah dengan
+                        <span class="vocab-highlight" onclick="showWordPopup('Teliti', 'Cermat dan berhati-hati dalam melakukan sesuatu.', 'Lani memeriksa kembali jawaban ujiannya dengan teliti.')">teliti</span>.
+                    </p>
+                </div>
+
+                <!-- Kotak Pop-up Arti Kata Interaktif (Muncul saat kata kuning diklik) -->
+                <div id="wordTooltipBox" class="mt-4 p-4 rounded-2xl bg-emerald-600 text-white shadow-lg flex items-center justify-between gap-4 transition-all duration-300">
+                    <div class="flex items-center gap-3">
+                        <span class="text-2xl">🔍</span>
+                        <div>
+                            <div id="tooltipWordTitle" class="font-black text-base sm:text-lg text-amber-300">Klik salah satu kata berwarna kuning di atas!</div>
+                            <div id="tooltipWordMeaning" class="text-xs sm:text-sm text-emerald-50">Kamu akan melihat arti kata dan contoh kalimatnya di kotak ini.</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ========================================================= -->
+        <!-- HALAMAN 4: KAMUS MINI KOSAKATA BARU (KARTU FLIP 3D)       -->
+        <!-- ========================================================= -->
+        <section id="slide-3" class="slide-page w-full">
+            <div class="bg-white/95 rounded-3xl border-4 border-emerald-300 shadow-xl p-6 sm:p-8">
+                <div class="flex flex-wrap items-center justify-between gap-2 mb-2">
+                    <div class="flex items-center gap-2.5">
+                        <span class="px-3.5 py-1 rounded-full bg-emerald-100 text-emerald-800 font-extrabold text-xs">Halaman 4</span>
+                        <h2 class="text-2xl sm:text-3xl font-extrabold text-emerald-900">Kamus Mini Kosakata Baru</h2>
+                    </div>
+                    <span class="text-xs font-extrabold px-3 py-1 rounded-full bg-amber-100 text-amber-800">👆 Klik kartu untuk membalik!</span>
+                </div>
+                <p class="text-sm sm:text-base text-slate-600 mb-6">Ayo pelajari 5 kosakata baru dari cerita <em>"Rahasia Kebun Sekolah"</em>. Klik setiap kartu untuk melihat arti dan contoh kalimatnya!</p>
+
+                <!-- Grid Kartu Flip 3D -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                    <!-- Kartu 1: Murung -->
+                    <div class="flip-card" onclick="flipCard(this)">
+                        <div class="flip-card-inner">
+                            <div class="flip-card-front bg-gradient-to-br from-sky-400 to-blue-500 text-white shadow-md border-2 border-sky-200">
+                                <span class="text-4xl mb-2">😔</span>
+                                <div class="text-2xl font-black">Murung</div>
+                                <div class="text-xs mt-2 bg-white/25 px-3 py-1 rounded-full font-bold">Klik untuk lihat arti 🔄</div>
+                            </div>
+                            <div class="flip-card-back bg-sky-50 border-2 border-sky-400 text-slate-800 shadow-md">
+                                <div class="text-sm font-black text-sky-700 uppercase mb-1">Arti Kata:</div>
+                                <p class="text-sm font-bold mb-2">Sedih, tampak tidak gembira, atau bermuka masam.</p>
+                                <div class="text-xs bg-white p-2 rounded-xl border border-sky-200 text-slate-600">
+                                    <strong>Contoh:</strong> Wajah Dino tampak <u>murung</u> karena pensilnya hilang.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Kartu 2: Saksama -->
+                    <div class="flip-card" onclick="flipCard(this)">
+                        <div class="flip-card-inner">
+                            <div class="flip-card-front bg-gradient-to-br from-emerald-400 to-teal-500 text-white shadow-md border-2 border-emerald-200">
+                                <span class="text-4xl mb-2">🧐</span>
+                                <div class="text-2xl font-black">Saksama</div>
+                                <div class="text-xs mt-2 bg-white/25 px-3 py-1 rounded-full font-bold">Klik untuk lihat arti 🔄</div>
+                            </div>
+                            <div class="flip-card-back bg-emerald-50 border-2 border-emerald-400 text-slate-800 shadow-md">
+                                <div class="text-sm font-black text-emerald-700 uppercase mb-1">Arti Kata:</div>
+                                <p class="text-sm font-bold mb-2">Teliti, cermat, dan penuh perhatian.</p>
+                                <div class="text-xs bg-white p-2 rounded-xl border border-emerald-200 text-slate-600">
+                                    <strong>Contoh:</strong> Siswa mendengarkan penjelasan guru dengan <u>saksama</u>.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Kartu 3: Rindang -->
+                    <div class="flip-card" onclick="flipCard(this)">
+                        <div class="flip-card-inner">
+                            <div class="flip-card-front bg-gradient-to-br from-amber-400 to-orange-500 text-white shadow-md border-2 border-amber-200">
+                                <span class="text-4xl mb-2">🌳</span>
+                                <div class="text-2xl font-black">Rindang</div>
+                                <div class="text-xs mt-2 bg-white/25 px-3 py-1 rounded-full font-bold">Klik untuk lihat arti 🔄</div>
+                            </div>
+                            <div class="flip-card-back bg-amber-50 border-2 border-amber-400 text-slate-800 shadow-md">
+                                <div class="text-sm font-black text-amber-700 uppercase mb-1">Arti Kata:</div>
+                                <p class="text-sm font-bold mb-2">Banyak cabang, ranting, dan daun sehingga terasa teduh.</p>
+                                <div class="text-xs bg-white p-2 rounded-xl border border-amber-200 text-slate-600">
+                                    <strong>Contoh:</strong> Kami berteduh di bawah pohon mangga yang <u>rindang</u>.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Kartu 4: Subur -->
+                    <div class="flip-card" onclick="flipCard(this)">
+                        <div class="flip-card-inner">
+                            <div class="flip-card-front bg-gradient-to-br from-lime-500 to-green-600 text-white shadow-md border-2 border-lime-200">
+                                <span class="text-4xl mb-2">🌿</span>
+                                <div class="text-2xl font-black">Subur</div>
+                                <div class="text-xs mt-2 bg-white/25 px-3 py-1 rounded-full font-bold">Klik untuk lihat arti 🔄</div>
+                            </div>
+                            <div class="flip-card-back bg-lime-50 border-2 border-lime-500 text-slate-800 shadow-md">
+                                <div class="text-sm font-black text-lime-700 uppercase mb-1">Arti Kata:</div>
+                                <p class="text-sm font-bold mb-2">Tumbuh dengan baik dan sehat (tidak layu atau merana).</p>
+                                <div class="text-xs bg-white p-2 rounded-xl border border-lime-200 text-slate-600">
+                                    <strong>Contoh:</strong> Tanaman bunga di halaman tumbuh <u>subur</u> karena disiram.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Kartu 5: Teliti -->
+                    <div class="flip-card sm:col-span-2 lg:col-span-2" onclick="flipCard(this)">
+                        <div class="flip-card-inner">
+                            <div class="flip-card-front bg-gradient-to-br from-purple-500 to-indigo-500 text-white shadow-md border-2 border-purple-200">
+                                <span class="text-4xl mb-2">🔎</span>
+                                <div class="text-2xl font-black">Teliti</div>
+                                <div class="text-xs mt-2 bg-white/25 px-3 py-1 rounded-full font-bold">Klik untuk lihat arti 🔄</div>
+                            </div>
+                            <div class="flip-card-back bg-purple-50 border-2 border-purple-400 text-slate-800 shadow-md">
+                                <div class="text-sm font-black text-purple-700 uppercase mb-1">Arti Kata:</div>
+                                <p class="text-sm font-bold mb-2">Cermat dan berhati-hati dalam melakukan sesuatu.</p>
+                                <div class="text-xs bg-white p-2 rounded-xl border border-purple-200 text-slate-600">
+                                    <strong>Contoh:</strong> Lani memeriksa kembali jawaban tugasnya dengan <u>teliti</u> sebelum dikumpulkan.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ========================================================= -->
+        <!-- HALAMAN 5: UNSUR INTRINSIK TEKS NARASI (TAB INTERAKTIF)    -->
+        <!-- ========================================================= -->
+        <section id="slide-4" class="slide-page w-full">
+            <div class="bg-white/95 rounded-3xl border-4 border-purple-300 shadow-xl p-6 sm:p-8">
+                <div class="flex items-center gap-2.5 mb-2">
+                    <span class="px-3.5 py-1 rounded-full bg-purple-100 text-purple-800 font-extrabold text-xs">Halaman 5</span>
+                    <h2 class="text-2xl sm:text-3xl font-extrabold text-purple-900">Mengenal Unsur-Unsur Cerita</h2>
+                </div>
+                <p class="text-sm sm:text-base text-slate-600 mb-5">
+                    Cerita pendek termasuk <strong>Teks Narasi</strong>. Pilih setiap tombol unsur di bawah ini untuk melihat penjelasannya dalam cerita <em>"Rahasia Kebun Sekolah"</em>!
+                </p>
+
+                <!-- Tombol Tab Unsur Intrinsik -->
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
+                    <button onclick="selectIntrinsicTab(0)" id="tabBtn-0" class="btn-kid p-3.5 rounded-2xl bg-purple-600 text-white font-extrabold text-sm sm:text-base flex flex-col items-center gap-1 cursor-pointer">
+                        <span class="text-2xl">🧑‍🤝‍🧑</span>
+                        <span>1. Tokoh &amp; Watak</span>
+                    </button>
+                    <button onclick="selectIntrinsicTab(1)" id="tabBtn-1" class="btn-kid p-3.5 rounded-2xl bg-purple-100 text-purple-900 hover:bg-purple-200 font-extrabold text-sm sm:text-base flex flex-col items-center gap-1 cursor-pointer">
+                        <span class="text-2xl">🏫</span>
+                        <span>2. Latar Cerita</span>
+                    </button>
+                    <button onclick="selectIntrinsicTab(2)" id="tabBtn-2" class="btn-kid p-3.5 rounded-2xl bg-purple-100 text-purple-900 hover:bg-purple-200 font-extrabold text-sm sm:text-base flex flex-col items-center gap-1 cursor-pointer">
+                        <span class="text-2xl">🛤️</span>
+                        <span>3. Alur Cerita</span>
+                    </button>
+                    <button onclick="selectIntrinsicTab(3)" id="tabBtn-3" class="btn-kid p-3.5 rounded-2xl bg-purple-100 text-purple-900 hover:bg-purple-200 font-extrabold text-sm sm:text-base flex flex-col items-center gap-1 cursor-pointer">
+                        <span class="text-2xl">💡</span>
+                        <span>4. Amanat</span>
+                    </button>
+                </div>
+
+                <!-- Konten Tab Dinamis -->
+                <div id="intrinsicContentCard" class="bg-gradient-to-br from-purple-50 to-indigo-50 border-2 border-purple-200 rounded-2xl p-6 transition-all duration-300">
+                    <!-- Diisi lewat JS -->
+                </div>
+            </div>
+        </section>
+
+        <!-- ========================================================= -->
+        <!-- HALAMAN 6: KUIS INTERAKTIF (5 SOAL PILIHAN GANDA)         -->
+        <!-- ========================================================= -->
+        <section id="slide-5" class="slide-page w-full">
+            <div class="bg-white/95 rounded-3xl border-4 border-orange-300 shadow-xl p-6 sm:p-8">
+                <div class="flex flex-wrap items-center justify-between gap-2 mb-4">
+                    <div class="flex items-center gap-2.5">
+                        <span class="px-3.5 py-1 rounded-full bg-orange-100 text-orange-800 font-extrabold text-xs">Halaman 6</span>
+                        <h2 class="text-2xl sm:text-3xl font-extrabold text-orange-900">Kuis Tantangan Membaca</h2>
+                    </div>
+                    <div class="px-4 py-1.5 rounded-full bg-emerald-100 text-emerald-900 font-black text-sm">
+                        ⭐ Skor Kamu: <span id="quizScoreDisplay">0</span> / 100
+                    </div>
+                </div>
+
+                <!-- Area Soal Kuis -->
+                <div id="quizContainer">
+                    <div class="flex items-center justify-between text-xs sm:text-sm font-bold text-slate-500 mb-2">
+                        <span id="quizQuestionNumber">Pertanyaan 1 dari 5</span>
+                        <span id="quizStatusBadge" class="text-orange-600">Pilih jawaban yang paling tepat!</span>
+                    </div>
+
+                    <div class="bg-orange-50 border-2 border-orange-200 rounded-2xl p-5 mb-5">
+                        <p id="quizQuestionText" class="text-lg sm:text-xl font-extrabold text-slate-800"></p>
+                    </div>
+
+                    <!-- Pilihan Jawaban -->
+                    <div id="quizOptionsContainer" class="grid grid-cols-1 sm:grid-cols-2 gap-3.5 mb-5"></div>
+
+                    <!-- Kotak Umpan Balik Jawaban -->
+                    <div id="quizFeedbackBox" class="hidden p-4 rounded-2xl font-bold text-sm sm:text-base mb-4"></div>
+
+                    <!-- Tombol Soal Berikutnya dalam Kuis -->
+                    <div class="flex justify-end">
+                        <button id="nextQuizBtn" onclick="nextQuizQuestion()" class="hidden btn-kid px-6 py-3 rounded-xl bg-orange-500 hover:bg-orange-600 text-white font-extrabold text-sm sm:text-base cursor-pointer">
+                            Soal Berikutnya ➡️
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Tampilan Hasil Akhir Kuis -->
+                <div id="quizResultSummary" class="hidden text-center py-6">
+                    <div class="text-6xl mb-3 anim-float">🏆</div>
+                    <h3 class="text-2xl sm:text-3xl font-black text-emerald-800 mb-2">Selamat! Kuis Selesai!</h3>
+                    <p id="quizFinalMessage" class="text-base sm:text-lg text-slate-700 font-semibold max-w-lg mx-auto mb-5"></p>
+                    <button onclick="resetQuiz()" class="btn-kid px-6 py-3 rounded-xl bg-sky-500 hover:bg-sky-600 text-white font-extrabold text-sm cursor-pointer">
+                        🔄 Ulangi Kuis
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- ========================================================= -->
+        <!-- HALAMAN 7: LEMBAR REFLEKSI SISWA                          -->
+        <!-- ========================================================= -->
+        <section id="slide-6" class="slide-page w-full">
+            <div class="bg-white/95 rounded-3xl border-4 border-teal-300 shadow-xl p-6 sm:p-8">
+                <div class="flex items-center gap-2.5 mb-2">
+                    <span class="px-3.5 py-1 rounded-full bg-teal-100 text-teal-800 font-extrabold text-xs">Halaman 7 (Penutup)</span>
+                    <h2 class="text-2xl sm:text-3xl font-extrabold text-teal-900">Refleksi Perasaan Belajarku</h2>
+                </div>
+                <p class="text-sm sm:text-base text-slate-600 mb-5">Bagaimana perasaanmu setelah belajar menggunakan E-Modul Bahasa Indonesia hari ini? Pilih stiker perasaanmu di bawah ini!</p>
+
+                <!-- Pilihan Stiker Perasaan -->
+                <div class="grid grid-cols-3 gap-3 sm:gap-5 mb-6" id="moodContainer">
+                    <button onclick="selectMood(this, 'Sangat Senang & Paham! 😄')" class="mood-btn p-4 rounded-2xl border-2 border-slate-200 bg-slate-50 hover:border-emerald-400 transition flex flex-col items-center gap-2 cursor-pointer">
+                        <span class="text-4xl sm:text-5xl">😄</span>
+                        <span class="font-extrabold text-xs sm:text-base text-slate-700">Sangat Senang</span>
+                    </button>
+                    <button onclick="selectMood(this, 'Cukup Paham 🙂')" class="mood-btn p-4 rounded-2xl border-2 border-slate-200 bg-slate-50 hover:border-sky-400 transition flex flex-col items-center gap-2 cursor-pointer">
+                        <span class="text-4xl sm:text-5xl">🙂</span>
+                        <span class="font-extrabold text-xs sm:text-base text-slate-700">Cukup Paham</span>
+                    </button>
+                    <button onclick="selectMood(this, 'Ingin Belajar Lagi 🤔')" class="mood-btn p-4 rounded-2xl border-2 border-slate-200 bg-slate-50 hover:border-amber-400 transition flex flex-col items-center gap-2 cursor-pointer">
+                        <span class="text-4xl sm:text-5xl">🤔</span>
+                        <span class="font-extrabold text-xs sm:text-base text-slate-700">Masih Penasaran</span>
+                    </button>
+                </div>
+
+                <!-- Kolom Nama & Catatan Singkat -->
+                <div class="space-y-4 bg-teal-50/70 border-2 border-teal-200 rounded-2xl p-5 mb-5">
+                    <div>
+                        <label class="block text-sm font-extrabold text-teal-900 mb-1">Nama Lengkap Siswa:</label>
+                        <input type="text" id="studentNameInput" placeholder="Contoh: Raka Pratama" class="w-full px-4 py-2.5 rounded-xl border-2 border-teal-200 focus:border-teal-500 focus:outline-none bg-white font-semibold text-slate-800">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-extrabold text-teal-900 mb-1">Hal baru apa yang kamu pelajari hari ini?</label>
+                        <textarea id="studentNoteInput" rows="2" placeholder="Tuliskan satu hal menarik yang kamu pelajari dari cerita..." class="w-full px-4 py-2.5 rounded-xl border-2 border-teal-200 focus:border-teal-500 focus:outline-none bg-white font-semibold text-slate-800"></textarea>
+                    </div>
+                </div>
+
+                <div class="flex flex-wrap items-center justify-between gap-3">
+                    <button onclick="submitReflection()" class="btn-kid px-7 py-3.5 rounded-2xl bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white font-black text-base cursor-pointer">
+                        ✅ Selesai &amp; Simpan Refleksi
+                    </button>
+                    <button onclick="goToSlide(0)" class="btn-kid px-5 py-3 rounded-2xl bg-slate-200 hover:bg-slate-300 text-slate-800 font-extrabold text-sm cursor-pointer">
+                        🏠 Kembali ke Sampul
+                    </button>
+                </div>
+
+                <!-- Kartu Sertifikat Mini Setelah Menyimpan Refleksi -->
+                <div id="reflectionResultCard" class="hidden mt-5 p-5 rounded-2xl bg-gradient-to-r from-amber-100 to-emerald-100 border-2 border-emerald-400 text-center">
+                    <div class="text-2xl font-black text-emerald-900 mb-1">🎉 Hebat, <span id="displayStudentName">Siswa Hebat</span>!</div>
+                    <p class="text-sm font-bold text-slate-700" id="displayReflectionSummary"></p>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- FOOTER NAVIGASI BAWAH (Tombol Sebelumnya, Titik Halaman, Selanjutnya) -->
+    <footer class="sticky bottom-0 z-30 bg-white/95 backdrop-blur-md border-t-2 border-emerald-200 shadow-lg">
+        <div class="max-w-5xl mx-auto px-4 py-3 flex items-center justify-between gap-2">
+            <!-- Tombol Sebelumnya -->
+            <button id="prevBtn" onclick="prevSlide()" class="btn-kid flex items-center gap-2 px-4 sm:px-6 py-2.5 sm:py-3 rounded-2xl bg-slate-200 hover:bg-slate-300 text-slate-800 font-extrabold text-sm sm:text-base cursor-pointer">
+                <span>⬅️</span>
+                <span>Sebelumnya</span>
+            </button>
+
+            <!-- Indikator Titik Halaman Cepat (Dots) -->
+            <div id="paginationDots" class="flex items-center gap-1.5 sm:gap-2"></div>
+
+            <!-- Tombol Selanjutnya -->
+            <button id="nextBtn" onclick="nextSlide()" class="btn-kid flex items-center gap-2 px-4 sm:px-6 py-2.5 sm:py-3 rounded-2xl bg-emerald-500 hover:bg-emerald-600 text-white font-extrabold text-sm sm:text-base cursor-pointer">
+                <span>Selanjutnya</span>
+                <span>➡️</span>
+            </button>
+        </div>
+    </footer>
+
+    <!-- MODAL DAFTAR ISI / NAVIGASI CEPAT -->
+    <div id="tocModal" class="fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-sm hidden items-center justify-center p-4">
+        <div class="bg-white rounded-3xl border-4 border-amber-300 max-w-md w-full p-6 shadow-2xl transform transition-all">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-xl font-black text-slate-800 flex items-center gap-2">
+                    <span>📑</span> Daftar Halaman E-Modul
+                </h3>
+                <button onclick="toggleTocModal()" class="w-9 h-9 rounded-full bg-slate-100 hover:bg-slate-200 font-black text-slate-600 cursor-pointer">✕</button>
+            </div>
+            <div class="space-y-2.5" id="tocListContainer"></div>
+        </div>
+    </div>
+
+    <!-- ========================================================= -->
+    <!-- LOGIKA INTERAKTIF & ANIMASI E-MODUL (JAVASCRIPT)          -->
+    <!-- ========================================================= -->
+    <script>
+        // Data Struktur Halaman E-Modul
+        const slideTitles = [
+            { title: "Sampul E-Modul", icon: "📘" },
+            { title: "Petunjuk & Tujuan Belajar", icon: "🎯" },
+            { title: "Cerita Pendek: Rahasia Kebun Sekolah", icon: "🌱" },
+            { title: "Kamus Mini Kosakata Baru", icon: "🔤" },
+            { title: "Unsur-Unsur Teks Narasi", icon: "🧩" },
+            { title: "Kuis Tantangan Membaca", icon: "🏆" },
+            { title: "Lembar Refleksi Siswa", icon: "🌟" }
+        ];
+
+        let currentSlide = 0;
+        let soundEnabled = true;
+
+        // Efek Suara Lembut dengan Tone.js (Tanpa URL Eksternal)
+        function playClickSound(type = "nav") {
+            if (!soundEnabled || typeof Tone === "undefined") return;
+            try {
+                if (Tone.context.state !== "running") Tone.start();
+                const synth = new Tone.Synth({
+                    oscillator: { type: "sine" },
+                    envelope: { attack: 0.01, decay: 0.12, sustain: 0, release: 0.1 }
+                }).toDestination();
+                synth.volume.value = -12;
+
+                if (type === "nav") synth.triggerAttackRelease("C5", "16n");
+                else if (type === "success") synth.triggerAttackRelease("G5", "8n");
+                else if (type === "error") synth.triggerAttackRelease("D4", "8n");
+                else if (type === "flip") synth.triggerAttackRelease("E5", "16n");
+            } catch (e) {}
+        }
+
+        function toggleSound() {
+            soundEnabled = !soundEnabled;
+            const btn = document.getElementById("soundToggleBtn");
+            btn.textContent = soundEnabled ? "🔊" : "🔇";
+        }
+
+        // Fungsi Navigasi Antar Halaman/Slide
+        function updateNavigationUI() {
+            const total = slideTitles.length;
+            // Tampilkan slide aktif
+            document.querySelectorAll(".slide-page").forEach((sec, idx) => {
+                if (idx === currentSlide) {
+                    sec.classList.add("active");
+                } else {
+                    sec.classList.remove("active");
+                }
+            });
+
+            // Update teks & progress bar
+            const percent = ((currentSlide + 1) / total) * 100;
+            document.getElementById("pageIndicatorText").textContent = `Halaman ${currentSlide + 1} dari ${total}`;
+            document.getElementById("progressBarFill").style.width = `${percent}%`;
+            document.getElementById("progressBarMobile").style.width = `${percent}%`;
+
+            // Update tombol Sebelumnya / Selanjutnya
+            document.getElementById("prevBtn").disabled = currentSlide === 0;
+            const nextBtn = document.getElementById("nextBtn");
+            if (currentSlide === total - 1) {
+                nextBtn.disabled = true;
+                nextBtn.innerHTML = `<span>Selesai</span><span>🎉</span>`;
+            } else {
+                nextBtn.disabled = false;
+                nextBtn.innerHTML = `<span>Selanjutnya</span><span>➡️</span>`;
+            }
+
+            // Update indikator titik halaman (pagination dots)
+            const dotsContainer = document.getElementById("paginationDots");
+            dotsContainer.innerHTML = "";
+            slideTitles.forEach((item, idx) => {
+                const dot = document.createElement("button");
+                dot.title = `${idx + 1}. ${item.title}`;
+                dot.onclick = () => goToSlide(idx);
+                dot.className = idx === currentSlide
+                    ? "w-7 h-3 rounded-full bg-emerald-500 transition-all duration-300 cursor-pointer"
+                    : "w-3 h-3 rounded-full bg-slate-300 hover:bg-emerald-300 transition-all duration-300 cursor-pointer";
+                dotsContainer.appendChild(dot);
+            });
+
+            // Scroll halus ke atas saat berpindah halaman
+            window.scrollTo({ top: 0, behavior: "smooth" });
+        }
+
+        function goToSlide(index) {
+            if (index < 0 || index >= slideTitles.length) return;
+            currentSlide = index;
+            playClickSound("nav");
+            updateNavigationUI();
+        }
+
+        function nextSlide() {
+            if (currentSlide < slideTitles.length - 1) {
+                goToSlide(currentSlide + 1);
+            }
+        }
+
+        function prevSlide() {
+            if (currentSlide > 0) {
+                goToSlide(currentSlide - 1);
+            }
+        }
+
+        // Modal Daftar Isi Cepat
+        function toggleTocModal() {
+            const modal = document.getElementById("tocModal");
+            const isHidden = modal.classList.contains("hidden");
+            if (isHidden) {
+                const list = document.getElementById("tocListContainer");
+                list.innerHTML = "";
+                slideTitles.forEach((item, idx) => {
+                    const activeClass = idx === currentSlide
+                        ? "bg-emerald-500 text-white border-emerald-600"
+                        : "bg-slate-50 hover:bg-amber-50 text-slate-800 border-slate-200";
+                    const btn = document.createElement("button");
+                    btn.className = `w-full text-left px-4 py-3 rounded-2xl border-2 font-bold text-sm flex items-center justify-between transition cursor-pointer ${activeClass}`;
+                    btn.innerHTML = `<span>${item.icon} ${idx + 1}. ${item.title}</span><span class="text-xs opacity-80">Hal ${idx + 1}</span>`;
+                    btn.onclick = () => {
+                        goToSlide(idx);
+                        toggleTocModal();
+                    };
+                    list.appendChild(btn);
+                });
+                modal.classList.remove("hidden");
+                modal.classList.add("flex");
+            } else {
+                modal.classList.add("hidden");
+                modal.classList.remove("flex");
+            }
+        }
+
+        // Halaman 2: Interaksi Checklist Tujuan Pembelajaran
+        function toggleGoal(btn) {
+            playClickSound("success");
+            const checkCircle = btn.querySelector(".goal-check");
+            const isDone = btn.classList.toggle("bg-emerald-50");
+            btn.classList.toggle("border-emerald-500", isDone);
+            checkCircle.classList.toggle("bg-emerald-500", isDone);
+            checkCircle.classList.toggle("border-emerald-500", isDone);
+
+            const checkedCount = document.querySelectorAll("#goalList .bg-emerald-50").length;
+            const feedback = document.getElementById("goalFeedback");
+            if (checkedCount === 3) {
+                feedback.classList.remove("hidden");
+            } else {
+                feedback.classList.add("hidden");
+            }
+        }
+
+        // Halaman 3: Pop-up Tooltip Arti Kata pada Cerita
+        function showWordPopup(word, meaning, example) {
+            playClickSound("flip");
+            const box = document.getElementById("wordTooltipBox");
+            document.getElementById("tooltipWordTitle").textContent = `📖 Arti Kata "${word}": ${meaning}`;
+            document.getElementById("tooltipWordMeaning").textContent = `Contoh kalimat: "${example}"`;
+
+            box.classList.remove("scale-95");
+            box.classList.add("scale-100", "ring-4", "ring-amber-300");
+            setTimeout(() => box.classList.remove("ring-4", "ring-amber-300"), 600);
+        }
+
+        // Halaman 4: Kartu Flip 3D Kamus Mini
+        function flipCard(cardEl) {
+            playClickSound("flip");
+            cardEl.classList.toggle("flipped");
+        }
+
+        // Halaman 5: Data & Interaksi Tab Unsur Intrinsik
+        const intrinsicData = [
+            {
+                title: "1. Tokoh dan Watak (Sifat Pelaku)",
+                desc: "Tokoh adalah pelaku yang mengalami peristiwa dalam cerita, sedangkan watak adalah sifat atau karakter tokoh tersebut.",
+                example: "• Raka: Teliti dan pengamat (memeriksa tanah dengan saksama).<br>• Sari: Kreatif dan peduli (mengusulkan memindahkan pot ke bawah pohon).<br>• Bima: Penyayang tanaman dan mau bekerja sama.<br>• Ibu Guru: Perhatian dan suka memuji kebaikan siswa."
+            },
+            {
+                title: "2. Latar Cerita (Tempat & Waktu)",
+                desc: "Latar adalah keterangan mengenai tempat, waktu, dan suasana terjadinya peristiwa dalam cerita.",
+                example: "• Latar Tempat: Kebun kecil di belakang ruang kelas IV SD Tunas Harapan.<br>• Latar Waktu: Pagi hari saat jadwal piket menyiram tanaman, dan tiga hari kemudian.<br>• Latar Suasana: Awalnya khawatir saat melihat tanaman layu, lalu berubah gembira."
+            },
+            {
+                title: "3. Alur Cerita (Urutan Kejadian)",
+                desc: "Alur adalah rangkaian peristiwa yang membentuk jalan cerita dari awal hingga akhir.",
+                example: "• Awal: Raka, Sari, dan Bima hendak menyiram tanaman sawi.<br>• Masalah: Daun sawi layu karena terkena panas pantulan atap seng.<br>• Penyelesaian: Mereka memindahkan pot ke bawah pohon ketapang yang rindang hingga sawi kembali subur."
+            },
+            {
+                title: "4. Amanat (Pesan Moral Cerita)",
+                desc: "Amanat adalah pesan kebaikan atau nasihat yang ingin disampaikan penulis kepada pembaca.",
+                example: "• Kita harus peduli dan teliti dalam merawat lingkungan sekitar.<br>• Bekerja sama dan saling menghargai ide teman membuat masalah lebih mudah diselesaikan."
+            }
+        ];
+
+        function selectIntrinsicTab(index) {
+            playClickSound("nav");
+            for (let i = 0; i < 4; i++) {
+                const btn = document.getElementById(`tabBtn-${i}`);
+                if (i === index) {
+                    btn.className = "btn-kid p-3.5 rounded-2xl bg-purple-600 text-white font-extrabold text-sm sm:text-base flex flex-col items-center gap-1 cursor-pointer shadow-md";
+                } else {
+                    btn.className = "btn-kid p-3.5 rounded-2xl bg-purple-100 text-purple-900 hover:bg-purple-200 font-extrabold text-sm sm:text-base flex flex-col items-center gap-1 cursor-pointer";
+                }
+            }
+            const item = intrinsicData[index];
+            const card = document.getElementById("intrinsicContentCard");
+            card.innerHTML = `
+                <h3 class="text-xl font-black text-purple-950 mb-2">${item.title}</h3>
+                <p class="text-sm sm:text-base text-slate-700 font-semibold mb-4">${item.desc}</p>
+                <div class="bg-white rounded-xl p-4 border border-purple-200 text-sm sm:text-base text-slate-800 leading-relaxed">
+                    <div class="font-extrabold text-purple-800 mb-1">📌 Penerapan dalam Cerita "Rahasia Kebun Sekolah":</div>
+                    <div>${item.example}</div>
+                </div>
+            `;
+        }
+
+        // Halaman 6: Logika Kuis Interaktif (5 Soal)
+        const quizQuestions = [
+            {
+                q: "1. Mengapa tanaman sawi di kebun belakang kelas IV tampak layu?",
+                options: [
+                    "Karena tidak pernah disiram air sama sekali",
+                    "Karena pot diletakkan di bawah atap seng yang memantulkan panas",
+                    "Karena dimakan oleh ulat daun di kebun",
+                    "Karena ditanam di dalam ruangan yang gelap"
+                ],
+                answer: 1,
+                explanation: "Tepat sekali! Raka menemukan bahwa pantulan panas matahari dari atap seng membuat tanah cepat kering."
+            },
+            {
+                q: "2. Siapa tokoh yang mengusulkan ide untuk memindahkan pot ke bawah pohon ketapang?",
+                options: ["Bima", "Ibu Guru", "Sari", "Raka"],
+                answer: 2,
+                explanation: "Benar! Sari mengusulkan agar pot dipindahkan ke bawah pohon ketapang yang rindang."
+            },
+            {
+                q: "3. Apa arti kata 'rindang' dalam Kamus Mini yang telah kamu pelajari?",
+                options: [
+                    "Tumbuh layu dan kering",
+                    "Banyak cabang, ranting, dan daun sehingga terasa teduh",
+                    "Tampak sedih dan bermuka masam",
+                    "Bekerja dengan tergesa-gesa"
+                ],
+                answer: 1,
+                explanation: "Hebat! Pohon yang rindang memiliki banyak daun sehingga membuat suasana di bawahnya teduh."
+            },
+            {
+                q: "4. Di manakah latar tempat terjadinya cerita 'Rahasia Kebun Sekolah'?",
+                options: [
+                    "Di halaman rumah Raka",
+                    "Di taman kota dekat sekolah",
+                    "Di kebun kecil belakang ruang kelas IV SD Tunas Harapan",
+                    "Di depan perpustakaan sekolah"
+                ],
+                answer: 2,
+                explanation: "Betul! Peristiwa terjadi di kebun kecil di belakang ruang kelas IV SD Tunas Harapan."
+            },
+            {
+                q: "5. Pesan baik (amanat) yang dapat kita teladani dari cerita tersebut adalah...",
+                options: [
+                    "Kita harus teliti dan bekerja sama dalam memecahkan masalah",
+                    "Kita sebaiknya menyerah jika tanaman layu",
+                    "Menyiram tanaman cukup dilakukan sebulan sekali",
+                    "Hanya ketua kelas yang wajib merawat kebun"
+                ],
+                answer: 0,
+                explanation: "Luar biasa! Ketelitian dan kerja sama Raka, Sari, dan Bima berhasil menyelamatkan tanaman sawi."
+            }
+        ];
+
+        let currentQuizIdx = 0;
+        let quizScore = 0;
+        let quizAnswered = false;
+
+        function renderQuizQuestion() {
+            quizAnswered = false;
+            const qData = quizQuestions[currentQuizIdx];
+            document.getElementById("quizQuestionNumber").textContent = `Pertanyaan ${currentQuizIdx + 1} dari ${quizQuestions.length}`;
+            document.getElementById("quizQuestionText").textContent = qData.q;
+            document.getElementById("quizFeedbackBox").classList.add("hidden");
+            document.getElementById("nextQuizBtn").classList.add("hidden");
+
+            const optionsEl = document.getElementById("quizOptionsContainer");
+            optionsEl.innerHTML = "";
+            const letters = ["A", "B", "C", "D"];
+
+            qData.options.forEach((optText, idx) => {
+                const btn = document.createElement("button");
+                btn.className = "quiz-opt-btn btn-kid text-left p-4 rounded-2xl bg-white border-2 border-orange-200 hover:border-orange-400 font-bold text-sm sm:text-base text-slate-800 flex items-center gap-3 cursor-pointer";
+                btn.innerHTML = `<span class="w-8 h-8 rounded-xl bg-orange-100 text-orange-800 font-black flex items-center justify-center shrink-0">${letters[idx]}</span><span>${optText}</span>`;
+                btn.onclick = () => checkQuizAnswer(idx, btn);
+                optionsEl.appendChild(btn);
+            });
+        }
+
+        function checkQuizAnswer(selectedIdx, clickedBtn) {
+            if (quizAnswered) return;
+            quizAnswered = true;
+
+            const qData = quizQuestions[currentQuizIdx];
+            const feedbackBox = document.getElementById("quizFeedbackBox");
+            const allBtns = document.querySelectorAll(".quiz-opt-btn");
+
+            allBtns.forEach((b, i) => {
+                b.disabled = true;
+                if (i === qData.answer) {
+                    b.classList.remove("bg-white", "border-orange-200");
+                    b.classList.add("bg-emerald-100", "border-emerald-500", "text-emerald-950");
+                }
+            });
+
+            if (selectedIdx === qData.answer) {
+                playClickSound("success");
+                quizScore += 20;
+                document.getElementById("quizScoreDisplay").textContent = quizScore;
+                feedbackBox.className = "p-4 rounded-2xl bg-emerald-100 border-2 border-emerald-400 text-emerald-900 font-bold text-sm sm:text-base mb-4";
+                feedbackBox.innerHTML = `🎉 <strong>Benar! (+20 Poin)</strong> ${qData.explanation}`;
+            } else {
+                playClickSound("error");
+                clickedBtn.classList.remove("bg-white", "border-orange-200");
+                clickedBtn.classList.add("bg-rose-100", "border-rose-400", "text-rose-950");
+                feedbackBox.className = "p-4 rounded-2xl bg-rose-100 border-2 border-rose-300 text-rose-900 font-bold text-sm sm:text-base mb-4";
+                feedbackBox.innerHTML = `💡 <strong>Hampir tepat!</strong> ${qData.explanation}`;
+            }
+
+            feedbackBox.classList.remove("hidden");
+            const nextBtn = document.getElementById("nextQuizBtn");
+            nextBtn.textContent = currentQuizIdx < quizQuestions.length - 1 ? "Soal Berikutnya ➡️" : "Lihat Hasil Skor 🏆";
+            nextBtn.classList.remove("hidden");
+        }
+
+        function nextQuizQuestion() {
+            playClickSound("nav");
+            if (currentQuizIdx < quizQuestions.length - 1) {
+                currentQuizIdx++;
+                renderQuizQuestion();
+            } else {
+                document.getElementById("quizContainer").classList.add("hidden");
+                const summary = document.getElementById("quizResultSummary");
+                summary.classList.remove("hidden");
+                document.getElementById("quizFinalMessage").textContent =
+                    `Kamu berhasil meraih skor ${quizScore} dari 100! Teruslah rajin membaca cerita untuk menambah kosakata barumu.`;
+            }
+        }
+
+        function resetQuiz() {
+            playClickSound("nav");
+            currentQuizIdx = 0;
+            quizScore = 0;
+            document.getElementById("quizScoreDisplay").textContent = "0";
+            document.getElementById("quizResultSummary").classList.add("hidden");
+            document.getElementById("quizContainer").classList.remove("hidden");
+            renderQuizQuestion();
+        }
+
+        // Halaman 7: Refleksi Siswa
+        let selectedMoodText = "";
+        function selectMood(btn, moodLabel) {
+            playClickSound("flip");
+            selectedMoodText = moodLabel;
+            document.querySelectorAll(".mood-btn").forEach(b => {
+                b.classList.remove("border-emerald-500", "bg-emerald-50", "scale-105", "shadow-md");
+            });
+            btn.classList.add("border-emerald-500", "bg-emerald-50", "scale-105", "shadow-md");
+        }
+
+        function submitReflection() {
+            playClickSound("success");
+            const name = document.getElementById("studentNameInput").value.trim() || "Siswa Kelas IV Hebat";
+            const note = document.getElementById("studentNoteInput").value.trim() || "Memahami cerita pendek dan kosakata baru.";
+            const mood = selectedMoodText || "Sangat Senang & Paham! 😄";
+
+            document.getElementById("displayStudentName").textContent = name;
+            document.getElementById("displayReflectionSummary").textContent =
+                `Perasaan belajarmu: ${mood} • Catatanmu: "${note}"`;
+            document.getElementById("reflectionResultCard").classList.remove("hidden");
+        }
+
+        // Dukungan Tombol Panah Keyboard
+        document.addEventListener("keydown", (e) => {
+            if (e.target.tagName === "INPUT" || e.target.tagName === "TEXTAREA") return;
+            if (e.key === "ArrowRight") nextSlide();
+            if (e.key === "ArrowLeft") prevSlide();
+        });
+
+        // Inisialisasi Halaman Saat Dimuat
+        window.onload = function() {
+            updateNavigationUI();
+            selectIntrinsicTab(0);
+            renderQuizQuestion();
+        };
+    </script>
+</body>
+</html>
